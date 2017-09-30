@@ -1,0 +1,11 @@
+{
+    // JSHint Default Configuration File (as on JSHint website)
+    // See http://jshint.com/docs/ for more details
+
+    //[...] // global conf ... see docs
+
+    // Custom Globals
+    "globals" : {
+        "Highcharts"  : false //here is what you need
+    }
+}

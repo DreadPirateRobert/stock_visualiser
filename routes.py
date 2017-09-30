@@ -1,7 +1,7 @@
 import tornado.ioloop
 import tornado.web
 
-from chart_api import *
+from stock_api import *
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -10,7 +10,8 @@ class MainHandler(tornado.web.RequestHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
-        (r"/chart", chart),
+        (r"/stock", stock),
+        (r"/index", index),
     ])
 
 if __name__ == "__main__":
@@ -18,3 +19,5 @@ if __name__ == "__main__":
     print ('Listening on port: 8888')
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
+    
+#API key = PTJUBNEO2HLMPSQD
