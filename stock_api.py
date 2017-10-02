@@ -1,6 +1,10 @@
 from routes import *
+import pymongo
+from pymongo import MongoClient
 import requests
 import json
+import MySQLdb
+
 
 class stock(tornado.web.RequestHandler):
     def set_headers(self):
@@ -9,7 +13,30 @@ class stock(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Credentials", "true")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET')
+        
+    def mongo_write(self,req):
+        connection = MongoClient("ds149954.mlab.com", 49954)
+        db = connection['visualizer']
+        db.authenticate('temp', 'temp123')
+        #db.mynewcollection.insert({ "temp123" : "new_temp_inserter" })
+        db.mynewcollection.insert({ req['Meta Data']['2. Symbol'] : json.dumps(req) })
+        print "successfully written to MLab:"
+        
+        #Retreving data from MLab
+        data = db.mynewcollection.find()
+        for keys in data:
+            print keys['_id']
     
+    def sql_write(self,req):
+        db = MySQLdb.connect("localhost","root","root","stock" )
+        cursor = db.cursor()
+        sql = "INSERT INTO `stock`.`stock_names` (`stock_name`, `user`) VALUES ('%s', '%s')" % (req['2. Symbol'],'temp')
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+        print "Successfully written to sql: ",req['2. Symbol']
+        
+        
     def post(self):
         self.set_headers()
         stock_name = self.get_argument("stock_name")
@@ -33,6 +60,13 @@ class stock(tornado.web.RequestHandler):
 #            for key,value in req["Time Series (1min)"][data]
         stock_mess = {'info': req["Meta Data"],'data':high_req}
         print stock_mess
+        
+        #write to Mlab
+        self.mongo_write(req)
+        
+        #write to sql
+        self.sql_write(req['Meta Data'])
+        
         self.write(stock_mess)
         #self.render("chart.html")
             
